@@ -9,8 +9,6 @@ The supplied folder is a complete source snapshot with deployment additions. The
 ```bash
 git clone https://github.com/thupeshkumar/E-CommerceStore.git
 cd E-CommerceStore
-<img width="542" height="137" alt="image" src="https://github.com/user-attachments/assets/56a9a213-5b55-4cd9-8c27-c72a13e9999a" />
-
 ```
 
 Use `DEPLOYMENT.md` as the deployment instructions; the original `README.md` describes development without containers.
@@ -78,7 +76,7 @@ nano .env
 Set your actual Docker Hub username, a tag such as `v1`, and a long random JWT secret. Generate the secret using `openssl rand -hex 32`, then paste it into `.env`:
 
 ```dotenv
-DOCKERHUB_USERNAME=youractualusername
+DOCKERHUB_USERNAME=thupeshkumard
 IMAGE_TAG=v1
 JWT_SECRET=paste-your-generated-secret-here
 ```
