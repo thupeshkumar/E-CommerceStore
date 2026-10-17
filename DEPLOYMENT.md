@@ -8,8 +8,6 @@ The supplied folder is a complete source snapshot with deployment additions. The
 
 ```bash
 git clone https://github.com/thupeshkumar/E-CommerceStore.git
-# Extract the supplied ZIP, then copy the contents of its E-CommerceStore folder
-# into the cloned E-CommerceStore folder, allowing file replacement.
 cd E-CommerceStore
 ```
 
@@ -78,7 +76,7 @@ nano .env
 Set your actual Docker Hub username, a tag such as `v1`, and a long random JWT secret. Generate the secret using `openssl rand -hex 32`, then paste it into `.env`:
 
 ```dotenv
-DOCKERHUB_USERNAME=youractualusername
+DOCKERHUB_USERNAME=thupeshkumard
 IMAGE_TAG=v1
 JWT_SECRET=paste-your-generated-secret-here
 ```
