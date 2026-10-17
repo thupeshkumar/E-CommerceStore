@@ -9,6 +9,7 @@ The supplied folder is a complete source snapshot with deployment additions. The
 ```bash
 git clone https://github.com/thupeshkumar/E-CommerceStore.git
 cd E-CommerceStore
+<img width="542" height="137" alt="image" src="https://github.com/user-attachments/assets/56a9a213-5b55-4cd9-8c27-c72a13e9999a" />
 
 ```
 
