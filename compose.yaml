@@ -1,0 +1,96 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  user:
+    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME}/ecommerce-user:${IMAGE_TAG:-v1}
+    build: ./backend/user-service
+    restart: unless-stopped
+    environment:
+      PORT: "3001"
+      MONGODB_URI: mongodb://mongo:27017/ecommerce_user
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+    expose: ["3001"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+  product:
+    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME}/ecommerce-product:${IMAGE_TAG:-v1}
+    build: ./backend/product-service
+    restart: unless-stopped
+    environment:
+      PORT: "3002"
+      MONGODB_URI: mongodb://mongo:27017/ecommerce_product
+    expose: ["3002"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3002/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+  cart:
+    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME}/ecommerce-cart:${IMAGE_TAG:-v1}
+    build: ./backend/cart-service
+    restart: unless-stopped
+    environment:
+      PORT: "3003"
+      MONGODB_URI: mongodb://mongo:27017/ecommerce_cart
+      PRODUCT_SERVICE_URL: http://product:3002
+    expose: ["3003"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3003/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+  order:
+    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME}/ecommerce-order:${IMAGE_TAG:-v1}
+    build: ./backend/order-service
+    restart: unless-stopped
+    environment:
+      PORT: "3004"
+      MONGODB_URI: mongodb://mongo:27017/ecommerce_order
+      PRODUCT_SERVICE_URL: http://product:3002
+      CART_SERVICE_URL: http://cart:3003
+      USER_SERVICE_URL: http://user:3001
+    expose: ["3004"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3004/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+  frontend:
+    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME}/ecommerce-frontend:${IMAGE_TAG:-v1}
+    build: ./frontend
+    restart: unless-stopped
+    ports: ["80:80"]
+    depends_on:
+      user:
+        condition: service_healthy
+      product:
+        condition: service_healthy
+      cart:
+        condition: service_healthy
+      order:
+        condition: service_healthy
+volumes:
+  mongo-data:

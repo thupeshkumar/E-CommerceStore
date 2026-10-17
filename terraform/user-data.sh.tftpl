@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+exec > >(tee -a /var/log/ecommerce-bootstrap.log) 2>&1
+export DEBIAN_FRONTEND=noninteractive
+retry() { for attempt in 1 2 3 4 5; do if "$@"; then return 0; fi; sleep 10; done; return 1; }
+retry apt-get update
+retry apt-get install -y ca-certificates curl openssl
+install -m 0755 -d /etc/apt/keyrings
+retry curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu jammy stable" > /etc/apt/sources.list.d/docker.list
+retry apt-get update
+retry apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+systemctl enable --now docker
+install -d -m 700 /opt/ecommerce
+cd /opt/ecommerce
+echo '${compose_b64}' | base64 -d > compose.yaml
+umask 077
+if [ ! -f .env ]; then
+  printf 'DOCKERHUB_USERNAME=%s\nIMAGE_TAG=%s\nJWT_SECRET=%s\n' '${dockerhub_username}' '${image_tag}' "$(openssl rand -hex 32)" > .env
+else
+  sed -i 's/^DOCKERHUB_USERNAME=.*/DOCKERHUB_USERNAME=${dockerhub_username}/; s/^IMAGE_TAG=.*/IMAGE_TAG=${image_tag}/' .env
+fi
+retry docker compose pull
+docker compose up -d --wait --wait-timeout 300
+touch /opt/ecommerce/DEPLOYMENT_COMPLETE

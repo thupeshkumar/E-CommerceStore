@@ -21,6 +21,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce
 // Routes
 app.use('/api/cart', require('./routes/cart'));
 
+app.get('/', (req, res) => res.json({ message: 'cart Service Running' }));
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ service: 'Cart Service', status: 'OK', port: PORT });
