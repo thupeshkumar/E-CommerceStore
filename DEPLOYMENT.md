@@ -8,9 +8,9 @@ The supplied folder is a complete source snapshot with deployment additions. The
 
 ```bash
 git clone https://github.com/thupeshkumar/E-CommerceStore.git
-# Extract the supplied ZIP, then copy the contents of its E-CommerceStore folder
-# into the cloned E-CommerceStore folder, allowing file replacement.
 cd E-CommerceStore
+<img width="542" height="137" alt="image" src="https://github.com/user-attachments/assets/985a94ae-aab1-434c-9f67-826719ad355b" />
+
 ```
 
 Use `DEPLOYMENT.md` as the deployment instructions; the original `README.md` describes development without containers.
